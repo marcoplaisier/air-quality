@@ -1,7 +1,9 @@
 import json
+from multiprocessing import Process
 
 import paho.mqtt.client as mqtt
 
+from sensor import start_measurements
 
 def publish_cb(client: mqtt.Client, topic):
     def publish(msg):
@@ -98,7 +100,7 @@ def on_connect(client: mqtt.Client, userdata, flags, reason_code, properties):
     }
     client.publish("homeassistant/sensor/humlr/config", json.dumps(msg))
     publish_state = publish_cb(client, "homeassistant/sensor/living-room/state")
-    publish_state({'temperature': 22.4, 'humidity': 66, 'co2': 1101})
+    Process(target=start_measurements, args=(publish_state, ))
 
 
 def on_message(client: mqtt.Client, userdata, msg):
